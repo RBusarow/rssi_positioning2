@@ -12,3 +12,10 @@ object Utils {
     return distanceRssi + variance
   }
 }
+
+fun Point.toDoubleArray(): DoubleArray {
+  val arr = DoubleArray(2)
+  arr[0] = x.toDouble()
+  arr[1] = y.toDouble()
+  return arr
+}

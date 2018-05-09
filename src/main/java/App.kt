@@ -1,5 +1,6 @@
 import device.Device
 import model.Space
+import util.Calc
 import util.Comms
 import java.awt.Point
 import java.util.*
@@ -11,12 +12,19 @@ object App {
   @JvmStatic
   fun main(args: Array<String>) {
 
-    createDevices()
+    (0..127).forEach { rssi ->
+      println("${-rssi}, ${Calc.distance(-rssi, -59, 2.0)}")
 
-    repeat(1, {
-      Comms.broadcast()
-      devices.forEach { it.sync() }
-    })
+
+    }
+
+
+    //    createDevices()
+    //
+    //    repeat(1, {
+    //      Comms.broadcast()
+    //      devices.forEach { it.sync() }
+    //    })
 
   }
 

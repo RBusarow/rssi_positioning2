@@ -1,13 +1,17 @@
 package util
 
+import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver
+import com.lemmingapex.trilateration.TrilaterationFunction
 import model.Edge
 import model.Space
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer
 import java.awt.Point
 import java.util.*
 
+
 class Calibration(val deviceId: String) {
   /**
-   * TxPower is the expected RSSI value of the device broadcasting at full power from a distance of 1 meter from the
+   * TxPower is the expected RSSI value of the device broadcasting at full power from a configDistance of 1 meter from the
    * receiver.  This field is often included as part of the BLE broadcast, but the actual value requires empirical
    * testing by the manufacturer which is often not done.
    *
@@ -37,22 +41,49 @@ class Calibration(val deviceId: String) {
 
         edgeMap[scannerId]!!.add(Edge(Point(scannerPosition.x, scannerPosition.y),
                                       Point(peripheralPosition.x, peripheralPosition.y),
-                                      Calc.euclideanDistance(scannerPosition, peripheralPosition),
                                       Calc.distance(rssi, this),
                                       rssi))
       }
     }
     if (deviceId == "a") {
-      edgeMap.forEach { _, edge ->
-        println(edge)
-      }
+      //      edgeMap.forEach { _, edge ->
+      //        println(edge)
+      //      }
+      trilaterate(edgeMap[deviceId]!!)
+    }
+  }
+
+  fun trilaterate(edges: List<Edge>) {
+
+    val pointsArray = edges.map { edge -> edge.b.toDoubleArray() }.toTypedArray()
+    val calculatedDistancesArray = edges.map { edge -> edge.calculatedDistance }.toDoubleArray()
+    val configDistancesArray = edges.map { edge -> edge.configDistance }.toDoubleArray()
+    val euclideanDistancesArray = edges.map { edge -> edge.euclideanDistance }.toDoubleArray()
+
+    pointsArray.forEach { println(Arrays.toString(it)) }
+    println(Arrays.toString(euclideanDistancesArray))
+
+    listOf(calculatedDistancesArray,
+           configDistancesArray,
+           euclideanDistancesArray).forEach { distances ->
+
+      val solver = NonLinearLeastSquaresSolver(TrilaterationFunction(pointsArray, distances),
+                                               LevenbergMarquardtOptimizer())
+
+      val optimum = solver.solve()
+
+      val centroid = optimum.point.toArray()
+
+      println(optimum.point.toString())
+
+      val standardDeviation = optimum.getSigma(0.0)
     }
   }
 
   companion object {
 
-    private const val DEFAULT_TX_POWER = -59
-    private const val DEFAULT_DECAY_FACTOR = 2.0
+      const val DEFAULT_TX_POWER = -59
+      const val DEFAULT_DECAY_FACTOR = 2.0
 
     //    private const val DEFAULT_TX_POWER = -63
     //    private const val DEFAULT_DECAY_FACTOR = 2.302
