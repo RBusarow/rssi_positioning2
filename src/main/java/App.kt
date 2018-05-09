@@ -1,8 +1,8 @@
 import device.Device
 import model.Space
-import util.Broadcasts
+import util.Comms
+import java.awt.Point
 import java.util.*
-import java.util.function.Consumer
 
 object App {
 
@@ -13,24 +13,26 @@ object App {
 
     createDevices()
 
-    repeat(500, { Broadcasts.broadcast(0) })
+    repeat(1, {
+      Comms.broadcast()
+      devices.forEach { it.sync() }
+    })
 
-    devices.forEach(Consumer<Device> { it.sync() })
   }
 
   private fun createDevices() {
     devices = LinkedList()
     var device: Device
     for (preset in Preset.values()) {
-      device = Device(preset.value)
-      Broadcasts.scanners.add(device)
-      Broadcasts.broadcasters.add(device)
-      Space.DEVICE_POSITIONS[preset.value] = Pair(preset.x, preset.z)
+      device = Device(preset.id)
+      Comms.receivers.add(device)
+      Comms.broadcasters.add(device)
+      Space.DEVICE_POSITIONS[preset.id] = Point(preset.x, preset.z)
       devices.add(device)
     }
   }
 
-  internal enum class Preset(val value: String, val x: Int, val z: Int) {
+  internal enum class Preset(val id: String, val x: Int, val z: Int) {
     A("a", 0, 0), B("b", Space.X, 0), C("c", 0, Space.Z), D("d", Space.X, Space.Z)
   }
 }

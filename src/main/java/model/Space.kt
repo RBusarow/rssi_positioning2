@@ -1,11 +1,15 @@
 package model
 
-import java.util.HashMap
+import java.awt.Point
+import java.util.*
 
 object Space {
 
-  const val X = 70
-  const val Z = 70
+  // 63,23 put all four nodes in a good spot in regards to errors with integer truncation
+  const val X = 63
+  const val Z = 23
 
-  val DEVICE_POSITIONS: HashMap<String, Pair<Int, Int>> = HashMap()
+  val DEVICE_POSITIONS: HashMap<String, Point> = HashMap()
+
+  fun position(deviceId: String): Point = DEVICE_POSITIONS[deviceId]!!
 }
