@@ -57,10 +57,10 @@ class Calibration(val deviceId: String) {
 
   companion object {
 
-    //    private const val DEFAULT_TX_POWER = -59
-    //    private const val DEFAULT_DECAY_FACTOR = 2.0
+        private const val DEFAULT_TX_POWER = -59
+        private const val DEFAULT_DECAY_FACTOR = 2.0
 
-    private const val DEFAULT_TX_POWER = -63
-    private const val DEFAULT_DECAY_FACTOR = 2.302
+//    private const val DEFAULT_TX_POWER = -63
+//    private const val DEFAULT_DECAY_FACTOR = 2.302
   }
 }
