@@ -13,8 +13,7 @@ object Calc {
 
   fun distance(rssi: Int, txPower: Int, decayFactor: Double): Double {
     return Math.pow(INTERFERENCE_MULTIPLIER,
-                    (txPower - rssi) / (decayFactor * INTERFERENCE_MULTIPLIER)
-    )
+                    (txPower - rssi) / (decayFactor * INTERFERENCE_MULTIPLIER))
   }
 
   fun txPower(rssi: Int, distance: Double, decayFactor: Double): Int {

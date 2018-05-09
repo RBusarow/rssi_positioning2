@@ -34,21 +34,15 @@ class Calibration(val deviceId: String) {
       peripherals.forEach { peripheralId, rssi ->
         val peripheralPosition = Space.position(peripheralId)
 
-        val edge = Edge(Point(scannerPosition.x, scannerPosition.y),
-                        Point(peripheralPosition.x, peripheralPosition.y),
-                        Calc.euclideanDistance(scannerPosition, peripheralPosition),
-                        Calc.distance(rssi, this),
-                        rssi
-        )
 
-        edgeMap[scannerId]!!.add(edge)
-
-
+        edgeMap[scannerId]!!.add(Edge(Point(scannerPosition.x, scannerPosition.y),
+                                      Point(peripheralPosition.x, peripheralPosition.y),
+                                      Calc.euclideanDistance(scannerPosition, peripheralPosition),
+                                      Calc.distance(rssi, this),
+                                      rssi))
       }
     }
     if (deviceId == "a") {
-      //      println(edgeMap)
-
       edgeMap.forEach { _, edge ->
         println(edge)
       }
@@ -57,10 +51,10 @@ class Calibration(val deviceId: String) {
 
   companion object {
 
-        private const val DEFAULT_TX_POWER = -59
-        private const val DEFAULT_DECAY_FACTOR = 2.0
+    private const val DEFAULT_TX_POWER = -59
+    private const val DEFAULT_DECAY_FACTOR = 2.0
 
-//    private const val DEFAULT_TX_POWER = -63
-//    private const val DEFAULT_DECAY_FACTOR = 2.302
+    //    private const val DEFAULT_TX_POWER = -63
+    //    private const val DEFAULT_DECAY_FACTOR = 2.302
   }
 }

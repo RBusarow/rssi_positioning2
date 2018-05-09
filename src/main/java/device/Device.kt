@@ -60,15 +60,13 @@ class Device(val id: String) {
   private fun printResults(filteredDeviceId: String, peripheral: Device?) {
     if (id == "a" && filteredDeviceId == "b") {
       println("device $id saw device -> ${peripheral?.id} with rssi -> ${peripheral?.rssi.toString().padEnd(
-        6
-      )}\t\tcalib dist  ->  ${Calc.distance(peripheral!!.rssi,
-                                            calibration.txPower,
-                                            calibration.decayFactor
-      ).toInt()}\t\tconfig dist -> ${Calc.distance(peripheral.rssi,
-                                                   Config.ACTUAL_TX_POWER,
-                                                   Config.ACTUAL_DECAY_FACTOR
-      ).toInt()}\t\teuclid dist -> ${Calc.euclideanDistance(this, peripheral)}"
-      )
+        6)}\t\tcalib dist  ->  ${Calc.distance(peripheral!!.rssi,
+                                               calibration.txPower,
+                                               calibration.decayFactor).toInt()}\t\tconfig dist -> ${Calc.distance(
+        peripheral.rssi,
+        Config.ACTUAL_TX_POWER,
+        Config.ACTUAL_DECAY_FACTOR).toInt()}\t\teuclid dist -> ${Calc.euclideanDistance(this,
+                                                                                        peripheral)}")
     }
   }
 
@@ -81,8 +79,8 @@ class Device(val id: String) {
     }
     calibration.onNewData(data)
 
-//    if (id == "a") {
-//      println(data)
-//    }
+    //    if (id == "a") {
+    //      println(data)
+    //    }
   }
 }

@@ -17,10 +17,8 @@ class CalcTest {
                                                          tuple.distance,
                                                          Calc.distance(tuple.rssi,
                                                                        tuple.txPower,
-                                                                       tuple.decayFactor
-                                                         ),
-                                                         ERROR_TOLERANCE
-                                            )
+                                                                       tuple.decayFactor),
+                                                         ERROR_TOLERANCE)
                                           })
   }
 
@@ -31,9 +29,7 @@ class CalcTest {
                                                          tuple.txPower,
                                                          Calc.txPower(tuple.rssi,
                                                                       tuple.distance,
-                                                                      tuple.decayFactor
-                                                         )
-                                            )
+                                                                      tuple.decayFactor))
                                           })
   }
 
@@ -44,9 +40,7 @@ class CalcTest {
                                                          tuple.rssi,
                                                          Calc.rssi(tuple.txPower,
                                                                    tuple.distance,
-                                                                   tuple.decayFactor
-                                                         )
-                                            )
+                                                                   tuple.decayFactor))
                                           })
   }
 
@@ -55,9 +49,7 @@ class CalcTest {
     (0..100).forEach { distance ->
       println("$distance , ${Calc.rssi(Config.ACTUAL_TX_POWER,
                                        distance.toDouble(),
-                                       Config.ACTUAL_DECAY_FACTOR
-      )}"
-      )
+                                       Config.ACTUAL_DECAY_FACTOR)}")
     }
 
     Arrays.stream(Tuple.values()).forEach({ tuple ->
@@ -65,10 +57,8 @@ class CalcTest {
                                                          tuple.decayFactor,
                                                          Calc.decayFactor(tuple.rssi,
                                                                           tuple.txPower,
-                                                                          tuple.distance
-                                                         ),
-                                                         ERROR_TOLERANCE
-                                            )
+                                                                          tuple.distance),
+                                                         ERROR_TOLERANCE)
                                           })
   }
 
@@ -120,8 +110,7 @@ class CalcTest {
   internal enum class Tuple(val rssi: Int,
                             val txPower: Int,
                             val decayFactor: Double,
-                            val distance: Double
-  ) {
+                            val distance: Double) {
     ONE(-50, -59, 2.0, 0.35481338923357547),
     TWO(-75, -59, 2.0, 6.309573444801933),
     THREE(-75, -59, 2.3, 4.961947603002903),
