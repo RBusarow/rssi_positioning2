@@ -8,7 +8,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8 (2)" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="SaveActionSettings">
@@ -17,8 +17,8 @@
         <option value="activate" />
         <option value="organizeImports" />
         <option value="reformat" />
-        <option value="finalPrivateMethod" />
         <option value="suppressAnnotation" />
+        <option value="finalPrivateMethod" />
         <option value="unnecessarySemicolon" />
       </set>
     </option>

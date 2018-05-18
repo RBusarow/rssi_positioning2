@@ -2,14 +2,14 @@ package model
 
 import util.Calc
 import util.Config
-import java.awt.Point
 
-data class Edge(val a: Point, val b: Point, val calculatedDistance: Double, val rssi: Int) {
+data class Edge(val a: Pair<Int, Int>, val b: Pair<Int, Int>, val rssi: Double, val calculatedDistance: Double) {
 
-  val configDistance: Double
-    get() = Calc.distance(rssi,
-                          Config.ACTUAL_TX_POWER,
-                          Config.ACTUAL_DECAY_FACTOR)
-  val euclideanDistance: Double get() = Calc.euclideanDistance(a, b)
+  val configDistance: Double = Calc.distance(rssi, Config.ACTUAL_TX_POWER, Config.ACTUAL_DECAY)
+  val euclideanDistance: Double = Calc.euclideanDistance(a, b)
+
+  override fun toString(): String {
+    return "Edge(a=$a, b=$b, rssi=$rssi, calculatedDistance=$calculatedDistance, configDistance=$configDistance, euclideanDistance=$euclideanDistance)"
+  }
 
 }

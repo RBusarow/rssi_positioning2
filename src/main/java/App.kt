@@ -1,46 +1,107 @@
-import device.Device
-import model.Space
+import model.Edge
 import util.Calc
-import util.Comms
-import java.awt.Point
-import java.util.*
+import util.Calibration
+import util.Config
+import util.Config.DISTANCE_VARIANCE
+import util.Config.MAX_X
+import util.Config.MAX_Y
+import util.Config.RSSI_SAMPLE_SIZE
+import util.Solver.simulateAnnealing
+import util.Solver.trilaterate
+import java.util.LinkedList
+import java.util.concurrent.ThreadLocalRandom
 
 object App {
 
-  private lateinit var devices: LinkedList<Device>
+  val threadLocalRandom = ThreadLocalRandom.current()
+
+  private val scanners = listOf(Pair(MAX_X, 0), Pair(0, MAX_Y), Pair(MAX_X, MAX_Y))
+  private val peripheral = Pair(35, 53)
+
+  private val euclideanDistances = scanners.map { pair -> Calc.euclideanDistance(Pair(0, 0), pair) }
+  private val rssiConfigDistanceMap = HashMap<Double, Double>()
+  private val configDistances = LinkedList<Double>()
+
+  val rssiEuclideanDistanceMap = HashMap<Double, Double>()
+
+  private var peripheralEdges = LinkedList<Edge>()
+
+  private var configAverageError = 0.0
+
+  private val randomVariance: Double
+    get() = threadLocalRandom.nextDouble(DISTANCE_VARIANCE * 2) - DISTANCE_VARIANCE
+
+  private lateinit var calibration: Calibration
 
   @JvmStatic
   fun main(args: Array<String>) {
 
-    (0..127).forEach { rssi ->
-      println("${-rssi}, ${Calc.distance(-rssi, -59, 2.0)}")
+    createTrainingData()
 
 
+    calibration = simulateAnnealing()
+
+    rssiEuclideanDistanceMap.forEach { (rssi, euclideanDistance) ->
+      printError("calibration",
+                 calibration.rssiDistanceMap[rssi]!!,
+                 euclideanDistance,
+                 calibration.rssiErrorMap[rssi]!!)
     }
 
+    println("\nbest calibration -> txPower = ${calibration.txPower}\tdecay = ${calibration.decay}")
 
-    //    createDevices()
-    //
-    //    repeat(1, {
-    //      Comms.broadcast()
-    //      devices.forEach { it.sync() }
-    //    })
+    println("\nconfig average error --> $configAverageError\ncalib  average error --> ${calibration.averageError}")
 
+    createPeripheralData()
+    println()
+    trilaterate(peripheralEdges)
   }
 
-  private fun createDevices() {
-    devices = LinkedList()
-    var device: Device
-    for (preset in Preset.values()) {
-      device = Device(preset.id)
-      Comms.receivers.add(device)
-      Comms.broadcasters.add(device)
-      Space.DEVICE_POSITIONS[preset.id] = Point(preset.x, preset.z)
-      devices.add(device)
+  private fun createTrainingData() {
+    val configErrors = LinkedList<Double>()
+
+    euclideanDistances.forEach { euclideanDistance ->
+      val averageRssi = randomRssiStream(euclideanDistance).average()
+      rssiEuclideanDistanceMap[averageRssi] = euclideanDistance
+
+      val configDistance = Calc.distance(averageRssi, Config.ACTUAL_TX_POWER, Config.ACTUAL_DECAY)
+      configDistances.add(configDistance)
+      rssiConfigDistanceMap[averageRssi] = configDistance
+
+      val configError = Calc.errorRate(euclideanDistance, configDistance)
+      configErrors.add(configError)
+
+      printError("config", configDistance, euclideanDistance, configError)
+    }
+    println()
+
+    configAverageError = configErrors.average()
+  }
+
+  private fun createPeripheralData() {
+    var averageRssi: Double
+    var euclideanDistance: Double
+    var calculatedDistance: Double
+
+    LinkedList(scanners).apply { add(Pair(0, 0)) }.forEach { scanner ->
+      euclideanDistance = Calc.euclideanDistance(scanner, peripheral)
+      averageRssi = randomRssiStream(euclideanDistance).average()
+      calculatedDistance = Calc.distance(averageRssi, calibration)
+      peripheralEdges.add(Edge(scanner, peripheral, averageRssi, calculatedDistance))
     }
   }
 
-  internal enum class Preset(val id: String, val x: Int, val z: Int) {
-    A("a", 0, 0), B("b", Space.X, 0), C("c", 0, Space.Z), D("d", Space.X, Space.Z)
+  private fun randomRssiStream(euclideanDistance: Double): LinkedList<Int> {
+    val rssis = LinkedList<Int>()
+    repeat(RSSI_SAMPLE_SIZE, {
+      rssis.add(Calc.rssi(Config.ACTUAL_TX_POWER, euclideanDistance + randomVariance, Config.ACTUAL_DECAY))
+    })
+    return rssis
   }
+
+  private fun printError(label: String, labeledDistance: Double, distance: Double, error: Double) {
+    println("${label.padEnd(12)} distance --> ${labeledDistance.toString().padEnd(20)}\t euclidean distance " + "-->${distance.toString().padEnd(
+        20)}\terror --> $error")
+  }
+
 }

@@ -1,19 +1,15 @@
 package util
 
-import device.Device
-import java.awt.Point
-
 object Calc {
 
   private const val INTERFERENCE_MULTIPLIER = 10.0
 
-  fun distance(rssi: Int, calibration: Calibration): Double {
-    return distance(rssi, calibration.txPower, calibration.decayFactor)
+  fun distance(rssi: Double, calibration: Calibration): Double {
+    return distance(rssi, calibration.txPower, calibration.decay)
   }
 
-  fun distance(rssi: Int, txPower: Int, decayFactor: Double): Double {
-    return Math.pow(INTERFERENCE_MULTIPLIER,
-                    (txPower - rssi) / (decayFactor * INTERFERENCE_MULTIPLIER))
+  fun distance(rssi: Double, txPower: Int, decayFactor: Double): Double {
+    return Math.pow(INTERFERENCE_MULTIPLIER, (txPower - rssi) / (decayFactor * INTERFERENCE_MULTIPLIER))
   }
 
   fun txPower(rssi: Int, distance: Double, decayFactor: Double): Int {
@@ -28,13 +24,13 @@ object Calc {
     return (txPower - rssi).toDouble() / Math.log10(distance) / INTERFERENCE_MULTIPLIER
   }
 
+  fun errorRate(expected: Double, actual: Double): Double {
+    return Math.abs(actual - expected) / expected
+  }
 
-  fun euclideanDistance(first: Device, second: Device): Double =
-    euclideanDistance(first.position, second.position)
-
-  fun euclideanDistance(first: Point, second: Point): Double {
-    val x = first.x - second.x
-    val y = first.y - second.y
+  fun euclideanDistance(first: Pair<Int, Int>, second: Pair<Int, Int>): Double {
+    val x = first.first - second.first
+    val y = first.second - second.second
 
     return Math.sqrt((x * x) + (y * y).toDouble())
   }
